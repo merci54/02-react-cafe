@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "modern-normalize";
+import css from './App.module.css'
+import CafeInfo from "./components/CafeInfo/CafeInfo";
+import VoteOptions from "./components/VoteOptions/VoteOptions";
+import VoteStats from "./components/VoteStats/VoteStats";
+import Notification from "./components/Notification/Notification";
+import type { Votes, VoteType } from "./types/votes";
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useState } from "react";
+
+export default function App() {
+
+  const [votes, setVotes] = useState<Votes>({
+    good: 0,
+    neutral: 0,
+    bad: 0
+  })
+
+  const handleVote = (type: VoteType) => {
+    setVotes({
+      ...votes,
+      [type]: votes[type] + 1
+    })
+  }
+
+  const resetVotes = () => {
+    setVotes({
+    good: 0,
+    neutral: 0,
+    bad: 0
+  })
+  }
+
+  const totalVotes = votes.good + votes.neutral + votes.bad;
+  const positiveRate = totalVotes
+    ? Math.round((votes.good / totalVotes) * 100)
+    : 0
+
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className={css.app}>
+      <CafeInfo />
+      <VoteOptions onVote={handleVote} onReset={resetVotes} canReset={totalVotes > 0} />
+      {totalVotes == 0 ? <Notification /> : <VoteStats votes={votes} totalVotes={totalVotes} positiveRate={positiveRate} />}
+    </div>
   )
 }
-
-export default App
